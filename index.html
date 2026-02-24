@@ -334,7 +334,7 @@ async function generateReview(){
     const text = data.content?.map(b=>b.text||"").join("") || "生成に失敗しました。もう一度お試しください。";
     document.getElementById("review-output").textContent = text;
   } catch(e){
-    document.getElementById("review-output").textContent = "エラーが発生しました。APIキーとネット接続を確認してください。";
+    document.getElementById("review-output").textContent = "エラー詳細: " + e.message + " / レスポンス: " + JSON.stringify(await res?.json?.() || {});
   }
   document.getElementById("loading").style.display="none";
   document.getElementById("result-area").style.display="block";
