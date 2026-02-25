@@ -7,18 +7,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  /* ===== 設定 ===== */
-  /* ↓ こちらにAnthropicのAPIキーを入力してください */
-  /* ANTHROPIC_API_KEY は下のscriptタグ内で設定します */
-
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:linear-gradient(135deg,#fdf8f2 0%,#f0e9df 100%);min-height:100vh;font-family:'Noto Sans JP',sans-serif;display:flex;justify-content:center;align-items:flex-start;padding:24px 16px 48px}
   #app{width:100%;max-width:640px;background:#fff;border-radius:20px;box-shadow:0 8px 48px rgba(120,80,30,.12);overflow:hidden;animation:fadeIn .4s ease}
   @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
   @keyframes spin{to{transform:rotate(360deg)}}
   @keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
-
-  /* Header */
   .header{background:linear-gradient(135deg,#4a3728 0%,#7a5c3e 100%);color:#fff;padding:36px 32px 28px;text-align:center}
   .logo{font-size:28px;margin-bottom:8px;color:#e8c87a}
   h1{font-family:'Noto Serif JP',serif;font-size:22px;font-weight:600;letter-spacing:.1em;margin-bottom:8px}
@@ -28,63 +22,50 @@
   .step-dot.active{border-color:#e8c87a;color:#e8c87a;background:rgba(232,200,122,.15)}
   .step-line{width:40px;height:2px;background:rgba(255,255,255,.2);transition:all .3s}
   .step-line.active{background:#e8c87a}
-
-  /* Body */
   .body{padding:28px 28px 32px;animation:slideIn .3s ease}
   .section-title{font-family:'Noto Serif JP',serif;font-size:18px;font-weight:600;color:#2d1f14;margin-bottom:8px;display:flex;align-items:center;gap:10px}
   .step-badge{background:#4a3728;color:#e8c87a;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
   .hint{font-size:12px;color:#9e8570;margin-bottom:20px}
-
-  /* Categories */
   .cat-block{margin-bottom:20px}
   .cat-label{font-size:12px;font-weight:700;color:#7a5c3e;letter-spacing:.08em;margin-bottom:10px;text-transform:uppercase}
   .chip-group{display:flex;flex-wrap:wrap;gap:8px}
   .chip{padding:8px 16px;border-radius:100px;border:1.5px solid #d5c4b0;background:#fdf8f2;color:#4a3728;font-size:13px;cursor:pointer;transition:all .15s;font-family:'Noto Sans JP',sans-serif}
   .chip:hover{border-color:#7a5c3e;background:#f5ece0}
   .chip.active{background:#4a3728;color:#e8c87a;border-color:#4a3728}
-
-  /* Fields */
+  .gender-group{display:flex;gap:12px;margin-bottom:24px}
+  .gender-btn{flex:1;padding:14px;border-radius:12px;border:1.5px solid #d5c4b0;background:#fdf8f2;color:#4a3728;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Noto Serif JP',serif;text-align:center}
+  .gender-btn:hover{border-color:#7a5c3e;background:#f5ece0}
+  .gender-btn.active{background:#4a3728;color:#e8c87a;border-color:#4a3728}
   .field-group{margin-bottom:20px}
   label.field-label{display:block;font-size:14px;font-weight:700;color:#4a3728;margin-bottom:10px}
   input[type=text],textarea{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid #d5c4b0;font-size:14px;font-family:'Noto Sans JP',sans-serif;color:#2d1f14;outline:none;background:#fdf8f2;transition:border .2s}
   input[type=text]:focus,textarea:focus{border-color:#7a5c3e}
   textarea{resize:vertical;line-height:1.7}
-
-  /* Buttons */
   .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:28px;gap:12px}
   .btn-next{background:#4a3728;color:#e8c87a;border:none;border-radius:100px;padding:12px 32px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em;display:block;margin-left:auto;margin-top:28px}
   .btn-back{background:transparent;color:#9e8570;border:1.5px solid #d5c4b0;border-radius:100px;padding:11px 24px;font-size:14px;cursor:pointer;font-family:'Noto Sans JP',sans-serif}
   .btn-generate{background:linear-gradient(135deg,#4a3728,#7a5c3e);color:#e8c87a;border:none;border-radius:100px;padding:13px 28px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em;box-shadow:0 4px 16px rgba(74,55,40,.3)}
   .btn-copy{background:#e8c87a;color:#2d1f14;border:none;border-radius:100px;padding:13px 32px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em;width:100%;max-width:300px}
   .btn-reset{background:transparent;color:#9e8570;border:1.5px solid #d5c4b0;border-radius:100px;padding:11px 24px;font-size:14px;cursor:pointer;font-family:'Noto Sans JP',sans-serif}
-
-  /* Loading */
   .loading{text-align:center;padding:48px 0}
   .spinner{width:48px;height:48px;border:4px solid #e8c87a;border-top-color:#4a3728;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
   .loading-text{color:#9e8570;font-size:14px}
-
-  /* Review result */
   .review-box{background:#fdf8f2;border:1.5px solid #d5c4b0;border-radius:14px;padding:20px 22px;margin-bottom:20px}
   .stars{color:#e8c87a;font-size:22px;letter-spacing:2px;margin-bottom:12px}
   .review-text{font-size:14px;line-height:2;color:#2d1f14;white-space:pre-wrap}
   .action-row{display:flex;justify-content:center;margin-bottom:20px}
-
-  /* Guide */
   .guide-box{background:#f5f0e8;border-left:3px solid #7a5c3e;border-radius:10px;padding:16px 18px;margin-bottom:24px}
   .guide-title{font-size:13px;font-weight:700;color:#4a3728;margin-bottom:10px}
   .guide-list{padding-left:18px;font-size:13px;color:#5a4030;line-height:2}
-
-  /* API Key setup screen */
   .setup-screen{padding:40px 28px;text-align:center}
   .setup-icon{font-size:40px;margin-bottom:16px}
   .setup-title{font-family:'Noto Serif JP',serif;font-size:20px;color:#2d1f14;margin-bottom:8px}
   .setup-desc{font-size:13px;color:#9e8570;line-height:1.8;margin-bottom:24px}
   .api-input-wrap{position:relative;margin-bottom:16px}
-  .api-input{width:100%;padding:12px 44px 12px 14px;border-radius:10px;border:1.5px solid #d5c4b0;font-size:13px;font-family:'Noto Sans JP',sans-serif;background:#fdf8f2;color:#2d1f14;outline:none}
+  .api-input{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid #d5c4b0;font-size:13px;font-family:'Noto Sans JP',sans-serif;background:#fdf8f2;color:#2d1f14;outline:none}
   .api-input:focus{border-color:#7a5c3e}
   .btn-start{width:100%;background:#4a3728;color:#e8c87a;border:none;border-radius:100px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif}
   .api-note{font-size:11px;color:#b0967e;margin-top:8px}
-
   .hidden{display:none}
 </style>
 </head>
@@ -103,27 +84,37 @@
     </div>
   </div>
 
-  <!-- API Key Setup (初回のみ) -->
+  <!-- APIキー設定画面 -->
   <div id="screen-setup" class="setup-screen hidden">
     <div class="setup-icon">🔑</div>
     <p class="setup-title">初期設定</p>
     <p class="setup-desc">このアプリを使用するにはAnthropicのAPIキーが必要です。<br>一度入力するとブラウザに保存されます。</p>
     <div class="api-input-wrap">
-      <input type="password" class="api-input" id="api-key-input" placeholder="sk-ant-api03-...">
+      <input class="api-input" id="api-key-input" placeholder="sk-ant-api03-...">
     </div>
     <button class="btn-start" onclick="saveApiKey()">設定して始める</button>
     <p class="api-note">APIキーはこのデバイスのブラウザにのみ保存されます</p>
   </div>
 
-  <!-- Step 1: 症状 -->
+  <!-- Step 1: 性別 + 症状 -->
   <div id="screen-1" class="body hidden">
-    <h2 class="section-title"><span class="step-badge">1</span>お悩みだった症状をチェックしてください</h2>
-    <p class="hint">複数選択できます</p>
+    <h2 class="section-title"><span class="step-badge">1</span>性別・お悩みの症状をチェック</h2>
+
+    <div class="field-group">
+      <label class="field-label">性別</label>
+      <div class="gender-group">
+        <button class="gender-btn" id="gender-male" onclick="selectGender('男性')">👨 男性</button>
+        <button class="gender-btn" id="gender-female" onclick="selectGender('女性')">👩 女性</button>
+      </div>
+    </div>
+
+    <label class="field-label">お悩みだった症状（複数選択可）</label>
+    <p class="hint">当てはまるものをすべて選んでください</p>
     <div id="symptom-area"></div>
     <button class="btn-next" onclick="goStep(2)">次へ →</button>
   </div>
 
-  <!-- Step 2: 来店動機 -->
+  <!-- Step 2: 来店動機・通院回数 -->
   <div id="screen-2" class="body hidden">
     <h2 class="section-title"><span class="step-badge">2</span>来店のきっかけ・通院回数</h2>
     <div class="field-group">
@@ -189,24 +180,25 @@
 </div>
 
 <script>
-// ============================================================
-// ★ 設定: 以下にAPIキーを直接書いてもOK（共用端末向け）
-// 空のままにするとブラウザ保存のキーを使用します
-// ============================================================
 const HARDCODED_API_KEY = "";
 
-// ============================================================
 const SYMPTOM_CATEGORIES = [
-  { label: "痛み・こり", items: ["肩こり","腰痛","首の痛み","膝の痛み","股関節の痛み","背中の痛み","頭痛","手足のしびれ"] },
-  { label: "姿勢・体型", items: ["猫背","骨盤のゆがみ","O脚・X脚","巻き肩","体のバランスの悪さ"] },
-  { label: "スポーツ・怪我", items: ["スポーツ障害","肉離れ","捻挫","テニス肘・ゴルフ肘","野球肩"] },
-  { label: "自律神経・その他", items: ["冷え・むくみ","疲労感・倦怠感","睡眠の質低下","自律神経の乱れ","産後の不調"] },
+  { label: "痛み・こり", items: ["肩こり","腰痛","首の痛み","膝の痛み","股関節の痛み","背中の痛み","頭痛","手足のしびれ","肘の痛み","足首の痛み"] },
+  { label: "姿勢・体型", items: ["猫背","骨盤のゆがみ","O脚・X脚","巻き肩","体のバランスの悪さ","脚長差","側弯症"] },
+  { label: "スポーツ・怪我", items: ["スポーツ障害","肉離れ","捻挫","テニス肘・ゴルフ肘","野球肩","オスグッド病","ランナー膝"] },
+  { label: "自律神経・その他", items: ["冷え・むくみ","疲労感・倦怠感","睡眠の質低下","自律神経の乱れ","産後の不調","めまい・耳鳴り","動悸・息切れ"] },
+  { label: "顎関節・歯ぎしり", items: ["顎関節症","歯ぎしり・食いしばり","口が開きにくい","顎の痛み・音"] },
+  { label: "眼精疲労・頭部", items: ["眼精疲労","ドライアイ","目の奥の痛み","偏頭痛","後頭部の張り"] },
+  { label: "神経痛・しびれ", items: ["坐骨神経痛","肋間神経痛","足裏のしびれ","指先のしびれ","腕のしびれ"] },
+  { label: "更年期・ホルモン", items: ["更年期症状","ホットフラッシュ","イライラ・気分の落ち込み","生理痛・生理不順"] },
+  { label: "交通事故・むち打ち", items: ["むち打ち症","交通事故後の痛み","事故後の頭痛","事故後の吐き気"] },
 ];
+
 const MOTIVES = ["ネットで検索して見つけた","知人・友人の紹介","近くにあったから","以前から通っていた","口コミを見て","チラシ・広告を見て","その他"];
 const VISIT_COUNTS = ["初めて","2〜3回目","5回以上","定期的に通っている"];
-const FEELINGS = ["施術後すぐに楽になった","数回通って改善した","痛みがなくなった","体が軽くなった","よく眠れるようになった","姿勢が良くなった","また来たいと思った","スタッフの対応が丁寧だった","説明がわかりやすかった","院内が清潔で落ち着く","予約が取りやすい","駐車場が使いやすい"];
+const FEELINGS = ["施術後すぐに楽になった","数回通って改善した","痛みがなくなった","体が軽くなった","よく眠れるようになった","姿勢が良くなった","また来たいと思った","スタッフの対応が丁寧だった","説明がわかりやすかった","院内が清潔で落ち着く","予約が取りやすい","駐車場が使いやすい","子ども連れでも安心","プライバシーへの配慮がある"];
 
-let state = { symptoms:[], motive:"", visitCount:"初めて", feelings:[], freeComment:"" };
+let state = { gender:"", symptoms:[], motive:"", visitCount:"初めて", feelings:[], freeComment:"" };
 let currentStep = 0;
 
 function getApiKey(){ return HARDCODED_API_KEY || localStorage.getItem("anthropic_api_key") || ""; }
@@ -215,6 +207,12 @@ function saveApiKey(){
   if(!key){ alert("APIキーを入力してください"); return; }
   localStorage.setItem("anthropic_api_key", key);
   goStep(1);
+}
+
+function selectGender(g){
+  state.gender = g;
+  document.getElementById("gender-male").classList.toggle("active", g==="男性");
+  document.getElementById("gender-female").classList.toggle("active", g==="女性");
 }
 
 function init(){
@@ -236,19 +234,18 @@ function goStep(n){
   currentStep = n;
   showScreen(String(n));
   updateStepIndicator(n);
-  if(n===4){ document.getElementById("steps-indicator").style.display="none"; }
-  else{ document.getElementById("steps-indicator").style.display="flex"; }
+  document.getElementById("steps-indicator").style.display = n===4 ? "none" : "flex";
   window.scrollTo({top:0, behavior:"smooth"});
 }
 
 function updateStepIndicator(n){
   [1,2,3].forEach(i=>{
     const dot = document.getElementById("dot"+i);
-    if(dot){ dot.classList.toggle("active", n>=i); }
+    if(dot) dot.classList.toggle("active", n>=i);
   });
   [1,2].forEach(i=>{
     const line = document.getElementById("line"+i);
-    if(line){ line.classList.toggle("active", n>i); }
+    if(line) line.classList.toggle("active", n>i);
   });
 }
 
@@ -284,7 +281,7 @@ function buildSymptoms(){
   SYMPTOM_CATEGORIES.forEach(cat=>{
     const block = document.createElement("div"); block.className="cat-block";
     const label = document.createElement("div"); label.className="cat-label"; label.textContent=cat.label;
-    const group = document.createElement("div"); group.className="chip-group"; group.id="sym-"+cat.label;
+    const group = document.createElement("div"); group.className="chip-group";
     block.appendChild(label); block.appendChild(group); area.appendChild(block);
     cat.items.forEach(item=>{
       const btn = document.createElement("button"); btn.className="chip"; btn.textContent=item;
@@ -310,6 +307,7 @@ async function generateReview(){
 
   const prompt = `あなたは整体院の施術を受けたお客様です。以下の情報をもとに、Googleマップの口コミとして自然で読みやすい文章を1つ生成してください。
 
+【性別】${state.gender || "未回答"}
 【来店のきっかけ】${motive || "特になし"}
 【通院回数】${state.visitCount}
 【悩んでいた症状・疾患】${state.symptoms.length>0 ? state.symptoms.join("、") : "特になし"}
@@ -318,7 +316,8 @@ async function generateReview(){
 
 条件：
 - 200〜350文字程度
-- 自然な話し言葉で、お客様本人が書いたようなリアルな文体
+- 性別に合った自然な話し言葉で、お客様本人が書いたようなリアルな文体
+- 男性なら「〜でした」「〜ます」など落ち着いたトーン、女性なら「〜でした！」など少し柔らかいトーン
 - SEOに効果的なキーワード（症状名、整体院などのワード）を自然に盛り込む
 - 星5つのポジティブな口コミとして書く
 - 箇条書きや記号は使わず、流れる文章にする
@@ -327,14 +326,19 @@ async function generateReview(){
   try{
     const res = await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST",
-      headers:{"Content-Type":"application/json","x-api-key":getApiKey(),"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      headers:{
+        "Content-Type":"application/json",
+        "x-api-key":getApiKey(),
+        "anthropic-version":"2023-06-01",
+        "anthropic-dangerous-direct-browser-access":"true"
+      },
       body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]})
     });
     const data = await res.json();
     const text = data.content?.map(b=>b.text||"").join("") || "生成に失敗しました。もう一度お試しください。";
     document.getElementById("review-output").textContent = text;
   } catch(e){
-    document.getElementById("review-output").textContent = "エラー詳細: " + e.message + " / レスポンス: " + JSON.stringify(await res?.json?.() || {});
+    document.getElementById("review-output").textContent = "エラーが発生しました。APIキーとネット接続を確認してください。";
   }
   document.getElementById("loading").style.display="none";
   document.getElementById("result-area").style.display="block";
@@ -350,11 +354,12 @@ function copyReview(){
 }
 
 function resetAll(){
-  state = { symptoms:[], motive:"", visitCount:"初めて", feelings:[], freeComment:"" };
+  state = { gender:"", symptoms:[], motive:"", visitCount:"初めて", feelings:[], freeComment:"" };
   document.getElementById("free-comment").value="";
   document.getElementById("custom-motive").value="";
   document.getElementById("custom-motive").style.display="none";
-  // rebuild chips
+  document.getElementById("gender-male").classList.remove("active");
+  document.getElementById("gender-female").classList.remove("active");
   document.getElementById("symptom-area").innerHTML="";
   buildSymptoms(); buildMotives(); buildVisitCounts(); buildFeelings();
   goStep(1);
