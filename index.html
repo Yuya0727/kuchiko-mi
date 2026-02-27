@@ -66,6 +66,7 @@
   .api-input:focus{border-color:#7a5c3e}
   .btn-start{width:100%;background:#4a3728;color:#e8c87a;border:none;border-radius:100px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif}
   .api-note{font-size:11px;color:#b0967e;margin-top:8px}
+  .error-box{background:#fff0f0;border:1.5px solid #f5b8b8;border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#c0392b;line-height:1.8}
   .hidden{display:none}
 </style>
 </head>
@@ -84,13 +85,13 @@
     </div>
   </div>
 
-  <!-- APIキー設定画面 -->
+  <!-- APIキー設定画面（院長専用：?setup） -->
   <div id="screen-setup" class="setup-screen hidden">
     <div class="setup-icon">🔑</div>
-    <p class="setup-title">初期設定</p>
-    <p class="setup-desc">このアプリを使用するにはAnthropicのAPIキーが必要です。<br>一度入力するとブラウザに保存されます。</p>
+    <p class="setup-title">院長用・初期設定</p>
+    <p class="setup-desc">AnthropicのAPIキーを入力してください。<br>一度入力するとこのブラウザに保存されます。</p>
     <div class="api-input-wrap">
-      <input class="api-input" id="api-key-input" placeholder="sk-ant-api03-...">
+      <input class="api-input" id="api-key-input" type="password" placeholder="sk-ant-api03-...">
     </div>
     <button class="btn-start" onclick="saveApiKey()">設定して始める</button>
     <p class="api-note">APIキーはこのデバイスのブラウザにのみ保存されます</p>
@@ -99,7 +100,6 @@
   <!-- Step 1: 性別 + 症状 -->
   <div id="screen-1" class="body hidden">
     <h2 class="section-title"><span class="step-badge">1</span>性別・お悩みの症状をチェック</h2>
-
     <div class="field-group">
       <label class="field-label">性別</label>
       <div class="gender-group">
@@ -107,7 +107,6 @@
         <button class="gender-btn" id="gender-female" onclick="selectGender('女性')">👩 女性</button>
       </div>
     </div>
-
     <label class="field-label">お悩みだった症状（複数選択可）</label>
     <p class="hint">当てはまるものをすべて選んでください</p>
     <div id="symptom-area"></div>
@@ -155,21 +154,24 @@
       <p class="loading-text">文章を作成中です…</p>
     </div>
     <div id="result-area" style="display:none">
-      <div class="review-box">
-        <div class="stars">★★★★★</div>
-        <p class="review-text" id="review-output"></p>
-      </div>
-      <div class="action-row">
-        <button class="btn-copy" id="copy-btn" onclick="copyReview()">📋 テキストをコピー</button>
-      </div>
-      <div class="guide-box">
-        <p class="guide-title">📌 Googleマップへの投稿手順</p>
-        <ol class="guide-list">
-          <li>上のテキストをコピーする</li>
-          <li>GoogleマップでこちらのページをQRコードから開く</li>
-          <li>「口コミを書く」をタップして貼り付ける</li>
-          <li>星の数を選んで送信！</li>
-        </ol>
+      <div id="error-area" class="error-box hidden"></div>
+      <div id="review-wrap">
+        <div class="review-box">
+          <div class="stars">★★★★★</div>
+          <p class="review-text" id="review-output"></p>
+        </div>
+        <div class="action-row">
+          <button class="btn-copy" id="copy-btn" onclick="copyReview()">📋 テキストをコピー</button>
+        </div>
+        <div class="guide-box">
+          <p class="guide-title">📌 Googleマップへの投稿手順</p>
+          <ol class="guide-list">
+            <li>上のテキストをコピーする</li>
+            <li>GoogleマップでこちらのページをQRコードから開く</li>
+            <li>「口コミを書く」をタップして貼り付ける</li>
+            <li>星の数を選んで送信！</li>
+          </ol>
+        </div>
       </div>
       <div class="nav-row">
         <button class="btn-back" onclick="goStep(3)">← 入力に戻る</button>
@@ -196,17 +198,25 @@ const SYMPTOM_CATEGORIES = [
 
 const MOTIVES = ["ネットで検索して見つけた","知人・友人の紹介","近くにあったから","以前から通っていた","口コミを見て","チラシ・広告を見て","その他"];
 const VISIT_COUNTS = ["初めて","2〜3回目","5回以上","定期的に通っている"];
-const FEELINGS = ["施術後すぐに楽になった","数回通って改善した","痛みがなくなった","体が軽くなった","よく眠れるようになった","姿勢が良くなった","また来たいと思った","スタッフの対応が丁寧だった","説明がわかりやすかった","院内が清潔で落ち着く","予約が取りやすい","駐車場が使いやすい","子ども連れでも安心","プライバシーへの配慮がある"];
+const FEELINGS = [
+  "施術後すぐに楽になった","数回通って改善した","痛みがなくなった","体が軽くなった",
+  "よく眠れるようになった","姿勢が良くなった","また来たいと思った",
+  "先生の対応が丁寧だった","説明がわかりやすかった","院内が清潔で落ち着く",
+  "予約が取りやすい","駐車場が使いやすい","子ども連れでも安心","プライバシーへの配慮がある"
+];
 
 let state = { gender:"", symptoms:[], motive:"", visitCount:"初めて", feelings:[], freeComment:"" };
 let currentStep = 0;
 
 function getApiKey(){ return HARDCODED_API_KEY || localStorage.getItem("anthropic_api_key") || ""; }
+
 function saveApiKey(){
   const key = document.getElementById("api-key-input").value.trim();
   if(!key){ alert("APIキーを入力してください"); return; }
   localStorage.setItem("anthropic_api_key", key);
+  alert("APIキーを保存しました。アプリを使い始めます。");
   goStep(1);
+  document.getElementById("steps-indicator").style.display="flex";
 }
 
 function selectGender(g){
@@ -219,44 +229,18 @@ function init(){
   buildSymptoms(); buildMotives(); buildVisitCounts(); buildFeelings();
   const isSetup = new URLSearchParams(window.location.search).has("setup");
   if(isSetup){
-    showScreen("setup"); document.getElementById("steps-indicator").style.display="none";
-  } else if(HARDCODED_API_KEY || localStorage.getItem("anthropic_api_key")){
+    showScreen("setup");
+    document.getElementById("steps-indicator").style.display="none";
+  } else if(getApiKey()){
     goStep(1);
   } else {
-    document.body.innerHTML='<div style="text-align:center;padding:80px;font-family:sans-serif;color:#888;"><p style="font-size:18px;">ただいま準備中です。<br>院長にお声がけください。</p></div>';
+    document.body.innerHTML='<div style="text-align:center;padding:80px 20px;font-family:sans-serif;color:#888;"><p style="font-size:18px;line-height:2;">ただいま準備中です。<br>院長にお声がけください。</p></div>';
   }
 }
-```
 
----
-
-## 修正2：プロンプトに「一人経営」の条件を追加（スタッフ表現を防ぐ）
-
-`条件：` の箇所に1行追加します。
-
-**変更前：**
-```
-条件：
-- 200〜350文字程度
-```
-
-**変更後：**
-```
-条件：
-- 200〜350文字程度
-- 院長一人で施術しているため「スタッフ」「スタッフの方々」などの表現は使わず、「先生」「院長」などの表現にする
-```
-
----
-
-## エラーについて
-
-モデル名は正しいので、エラーの原因はAPIキーが設定されていない可能性が高いです。修正1を適用した後、まず**院長用URLでキーを設定**してください：
-```
-https://あなたのユーザー名.github.io/review-app/?setup
 function showScreen(name){
   ["setup","1","2","3","4"].forEach(s=>{
-    const el = document.getElementById("screen-"+(s==="setup"?"setup":s));
+    const el = document.getElementById(s==="setup"?"screen-setup":"screen-"+s);
     if(el) el.classList.add("hidden");
   });
   const target = document.getElementById(name==="setup"?"screen-setup":"screen-"+name);
@@ -354,24 +338,46 @@ async function generateReview(){
 - SEOに効果的なキーワード（症状名、整体院などのワード）を自然に盛り込む
 - 星5つのポジティブな口コミとして書く
 - 箇条書きや記号は使わず、流れる文章にする
+- この整体院は院長お一人で施術しているため「スタッフ」「スタッフの方々」などの表現は絶対に使わず、「先生」または「院長先生」という表現を使うこと
 - 文章のみ返答し、余計な説明や前置きは不要`;
 
+  const errorArea = document.getElementById("error-area");
+  const reviewWrap = document.getElementById("review-wrap");
+  errorArea.classList.add("hidden");
+  reviewWrap.style.display="block";
+
   try{
+    const apiKey = getApiKey();
+    if(!apiKey){
+      throw new Error("APIキーが設定されていません。院長にお声がけください。");
+    }
     const res = await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST",
       headers:{
         "Content-Type":"application/json",
-        "x-api-key":getApiKey(),
+        "x-api-key": apiKey,
         "anthropic-version":"2023-06-01",
         "anthropic-dangerous-direct-browser-access":"true"
       },
       body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]})
     });
+    if(!res.ok){
+      const errData = await res.json().catch(()=>({}));
+      const msg = errData.error?.message || `HTTPエラー ${res.status}`;
+      if(res.status===401){
+        localStorage.removeItem("anthropic_api_key");
+        throw new Error("APIキーが無効です。院長用URL（?setup）から再設定してください。");
+      }
+      throw new Error(msg);
+    }
     const data = await res.json();
-    const text = data.content?.map(b=>b.text||"").join("") || "生成に失敗しました。もう一度お試しください。";
+    const text = data.content?.map(b=>b.text||"").join("").trim();
+    if(!text) throw new Error("文章の生成に失敗しました。もう一度お試しください。");
     document.getElementById("review-output").textContent = text;
   } catch(e){
-    document.getElementById("review-output").textContent = "エラーが発生しました。APIキーとネット接続を確認してください。";
+    errorArea.textContent = "⚠ " + e.message;
+    errorArea.classList.remove("hidden");
+    reviewWrap.style.display="none";
   }
   document.getElementById("loading").style.display="none";
   document.getElementById("result-area").style.display="block";
@@ -402,3 +408,4 @@ init();
 </script>
 </body>
 </html>
+
