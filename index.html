@@ -217,10 +217,43 @@ function selectGender(g){
 
 function init(){
   buildSymptoms(); buildMotives(); buildVisitCounts(); buildFeelings();
-  if(HARDCODED_API_KEY || localStorage.getItem("anthropic_api_key")){ goStep(1); }
-  else{ showScreen("setup"); document.getElementById("steps-indicator").style.display="none"; }
+  const isSetup = new URLSearchParams(window.location.search).has("setup");
+  if(isSetup){
+    showScreen("setup"); document.getElementById("steps-indicator").style.display="none";
+  } else if(HARDCODED_API_KEY || localStorage.getItem("anthropic_api_key")){
+    goStep(1);
+  } else {
+    document.body.innerHTML='<div style="text-align:center;padding:80px;font-family:sans-serif;color:#888;"><p style="font-size:18px;">ただいま準備中です。<br>院長にお声がけください。</p></div>';
+  }
 }
+```
 
+---
+
+## 修正2：プロンプトに「一人経営」の条件を追加（スタッフ表現を防ぐ）
+
+`条件：` の箇所に1行追加します。
+
+**変更前：**
+```
+条件：
+- 200〜350文字程度
+```
+
+**変更後：**
+```
+条件：
+- 200〜350文字程度
+- 院長一人で施術しているため「スタッフ」「スタッフの方々」などの表現は使わず、「先生」「院長」などの表現にする
+```
+
+---
+
+## エラーについて
+
+モデル名は正しいので、エラーの原因はAPIキーが設定されていない可能性が高いです。修正1を適用した後、まず**院長用URLでキーを設定**してください：
+```
+https://あなたのユーザー名.github.io/review-app/?setup
 function showScreen(name){
   ["setup","1","2","3","4"].forEach(s=>{
     const el = document.getElementById("screen-"+(s==="setup"?"setup":s));
