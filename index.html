@@ -227,9 +227,18 @@ function selectGender(g){
 
 function init(){
   buildSymptoms(); buildMotives(); buildVisitCounts(); buildFeelings();
-  const isSetup = new URLSearchParams(window.location.search).has("setup");
-  if(isSetup){
+  const params = new URLSearchParams(window.location.search);
+  if(params.has("setup")){
+    // ?setup付きなら常にセットアップ画面を表示
     showScreen("setup");
+    document.getElementById("steps-indicator").style.display="none";
+  } else if(HARDCODED_API_KEY || localStorage.getItem("anthropic_api_key")){
+    goStep(1);
+  } else {
+    showScreen("setup");
+    document.getElementById("steps-indicator").style.display="none";
+  }
+}
     document.getElementById("steps-indicator").style.display="none";
   } else if(getApiKey()){
     goStep(1);
