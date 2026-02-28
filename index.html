@@ -227,26 +227,12 @@ function selectGender(g){
 
 function init(){
   buildSymptoms(); buildMotives(); buildVisitCounts(); buildFeelings();
-  const params = new URLSearchParams(window.location.search);
-  if(params.has("setup")){
-    // ?setup付きなら常にセットアップ画面を表示
-    showScreen("setup");
-    document.getElementById("steps-indicator").style.display="none";
-  } else if(HARDCODED_API_KEY || localStorage.getItem("anthropic_api_key")){
-    goStep(1);
-  } else {
-    showScreen("setup");
-    document.getElementById("steps-indicator").style.display="none";
-  }
-}
-    document.getElementById("steps-indicator").style.display="none";
-  } else if(getApiKey()){
+  if(getApiKey()){
     goStep(1);
   } else {
     document.body.innerHTML='<div style="text-align:center;padding:80px 20px;font-family:sans-serif;color:#888;"><p style="font-size:18px;line-height:2;">ただいま準備中です。<br>院長にお声がけください。</p></div>';
   }
 }
-
 function showScreen(name){
   ["setup","1","2","3","4"].forEach(s=>{
     const el = document.getElementById(s==="setup"?"screen-setup":"screen-"+s);
