@@ -334,6 +334,7 @@ async function generateReview(){
 - 星5つのポジティブな口コミとして書く
 - 箇条書きや記号は使わず、流れる文章にする
 - この整体院は院長お一人で施術しているため「スタッフ」「スタッフの方々」などの表現は絶対に使わず、「先生」または「院長先生」という表現を使うこと
+- 文章は2〜3文ごとに改行を入れて読みやすくする
 - 文章のみ返答し、余計な説明や前置きは不要`;
 
   const errorArea = document.getElementById("error-area");
@@ -368,7 +369,7 @@ async function generateReview(){
     const data = await res.json();
     const text = data.content?.map(b=>b.text||"").join("").trim();
     if(!text) throw new Error("文章の生成に失敗しました。もう一度お試しください。");
-    document.getElementById("review-output").textContent = text;
+    document.getElementById("review-output").innerHTML = text.replace(/\n/g, "<br>");
   } catch(e){
     errorArea.textContent = "⚠ " + e.message;
     errorArea.classList.remove("hidden");
@@ -379,7 +380,7 @@ async function generateReview(){
 }
 
 function copyReview(){
-  const text = document.getElementById("review-output").textContent;
+  const text = document.getElementById("review-output").innerText;
   navigator.clipboard.writeText(text).then(()=>{
     const btn = document.getElementById("copy-btn");
     btn.textContent = "✓ コピーしました！";
